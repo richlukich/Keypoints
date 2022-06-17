@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-from Keypoints.models.PRM import PRM
-from Keypoints.models.Hourglass import Hourglass
+from models.PRM import PRM
+from models.Hourglass import Hourglass
 
 class PRM_Pool (nn.Module):
     def __init__(self,in_features,out_features,c):
