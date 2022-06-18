@@ -28,7 +28,7 @@ class Pyranet (nn.Module):
         self.relu=nn.ReLU()
 
         self.hourglass=Hourglass(2,self.nPRM,self.c,self.n_features)
-        self.prms=[PRM(n_features,n_features,self.c) for i in range(self.nPRM)]
+        self.prms=[PRM(n_features,n_features,self.c).cuda() for i in range(self.nPRM)]
 
         self.lin = nn.Sequential(nn.Conv2d(self.n_features, self.n_features, bias=True, kernel_size=1, stride=1),
                             nn.BatchNorm2d(self.n_features),
