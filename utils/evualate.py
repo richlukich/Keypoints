@@ -29,7 +29,7 @@ def getPreds(heatmaps):
 
 def CalcDist(output,target,normalize=64/10):
 
-    dists=np.zeros((output.shape[0],output.shape[1]))
+    dists=np.zeros((output.shape[1],output.shape[0]))
 
     for i in range (output.shape[0]):
         for j in range (output.shape[1]):

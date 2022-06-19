@@ -3,7 +3,7 @@ from models.PRM import BN_ReLU_1x1
 from models.Hourglass import Hourglass
 from models.PyraNet import Pyranet
 import torch
-from dataset.dataloaders import train_dataloder
+from dataset.dataloaders import train_dataloader
 import cv2
 from PIL import Image
 import matplotlib.pyplot as plt

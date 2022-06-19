@@ -17,13 +17,13 @@ def val_transform(image,keypoints,height,width):
         A.augmentations.transforms.Resize(height, width, p=1),
         A.pytorch.transforms.ToTensorV2()
     ], keypoint_params=A.KeypointParams(format='xy', remove_invisible=False, angle_in_degrees=True))
-    image_trans, keypoints_trans = transform(image, keypoints)
-    return image_trans, keypoints_trans
+    transformed = transform(image, keypoints)
+    return transformed['image'], transformed['keypoints']
 
 def test_transform(image,keypoints,height,width):
     transform = A.Compose([
         A.augmentations.transforms.Resize(height, width, p=1),
         A.pytorch.transforms.ToTensorV2()
     ], keypoint_params=A.KeypointParams(format='xy', remove_invisible=False, angle_in_degrees=True))
-    image_trans, keypoints_trans = transform(image, keypoints)
-    return image_trans, keypoints_trans
+    transformed  = transform(image, keypoints)
+    return transformed['image'], transformed['keypoints']

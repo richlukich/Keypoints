@@ -17,7 +17,7 @@ class MPIIDataset(Dataset):
         self.transforms = transforms
         self.nJoints = nJoints
 
-        self.file = File((f'/content/pytorch-PyraNet/data/mpii/annot/{split}.h5'))
+        self.file = File((f'/content/{split}.h5'))
 
     def GetImage(self, idx):
         img_name = str(self.file['imgname'][idx])[2:-1]
@@ -50,4 +50,4 @@ class MPIIDataset(Dataset):
         return image, targets,meta
 
     def __len__(self):
-        return len(self.f['imgname'])
+        return len(self.file['imgname'])
