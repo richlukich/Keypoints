@@ -3,9 +3,9 @@ import albumentations.pytorch
 def train_transform(image,keypoints,height,width):
     transform = A.Compose([
         A.Resize(height,width,p=1),
-        #A.Rotate(45,p=0.5),
+        A.Rotate(45,p=0.5),
         #A.RandomBrightnessContrast(p=0.2),
-       # A.Flip(p=0.3),
+        A.Flip(p=0.3),
         #A.Normalize(p=1.0),
         albumentations.pytorch.transforms.ToTensorV2()
     ], keypoint_params=A.KeypointParams(format='xy', remove_invisible=False, angle_in_degrees=True))

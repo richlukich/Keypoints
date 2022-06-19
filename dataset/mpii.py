@@ -3,72 +3,51 @@ import torch
 import pandas as pd
 from torch.utils.data import Dataset
 import cv2
-from utils.gaussian import generate_gaussian
+from utils.gaussian import CenterGaussianHeatMap
 import matplotlib.pyplot as plt
 from dataset.transform import train_transform
+from h5py import File
+
+
 class MPIIDataset(Dataset):
-    def __init__(self,path_images,keypoints_df,size=None,transforms=None,output_size=64):
-        super(MPIIDataset, self).__init__()
-        self.size=size
-        self.path_images=path_images
-        self.keypoints=keypoints_df
-        self.transforms=transforms
-        self.output_size=output_size
+    def __init__(self, split, transforms=None, input_size=256, output_size=64, nJoints=16):
+        self.split = split
+        self.input_size = input_size
+        self.output_size = output_size
+        self.transforms = transforms
+        self.nJoints = nJoints
 
-    def getimage (self,path):
-        img = plt.imread(path)
-        #img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        self.file = File((f'/content/pytorch-PyraNet/data/mpii/annot/{split}.h5'))
 
-        return img
+    def GetImage(self, idx):
+        img_name = str(self.file['imgname'][idx])[2:-1]
+        image = plt.imread(f'/content/images/{img_name}')
+        return image,img_name
 
-    def getcoords(self,idx):
-        columns_points=self.keypoints.columns[2:34]
-        p=0
-        coords={'r_ankle':[-1,-1], # 1
-                'r_knee':[-1,-1],  # 2
-                'r_hip':[-1,-1],   # 3
-                'l_hip':[-1,-1],   # 4
-                'l_knee':[-1,-1],  # 5
-                'l_ankle':[-1,-1], # 6
-                'pelvis':[-1,-1],  # 7
-                'thorax':[-1,-1],  # 8
-                'upperneck':[-1,-1], # 9
-                'head_top':[-1,-1], # 10
-                'r_wrist':[-1,-1], # 11
-                'r_elbow':[-1,-1], # 12
-                'r_shoulder':[-1,-1], # 13
-                'l_shoulder':[-1,-1], # 14
-                'l_elbow':[-1,-1], # 15
-                'l_wrist':[-1,-1]} # 16
-        for key in coords.keys():
-            coords[key][0]=self.keypoints.iloc[idx][columns_points[p]]
-            coords[key][1]=self.keypoints.iloc[idx][columns_points[p+1]]
-            p+=2
-        return coords
-    def getscale(self,idx):
-        return self.keypoints.iloc[idx]['Scale']
-    def __getitem__(self, item):
-        img_name=self.keypoints.iloc[item]['NAME']
-        img_path=self.path_images+img_name
-        image=self.getimage(img_path)
-        coords=self.getcoords(item)
-        scale=self.getscale(item)
-        n_Joints=len(coords.keys())
-        out=torch.zeros(n_Joints,self.output_size,self.output_size)
+    def GetKeypoints(self, idx):
+        return self.file['part'][idx]
 
+    def remove_invisible(self, keypoint):
+        if keypoint[0] < 0 or keypoint[1] < 0 or keypoint[0] > self.input_size or keypoint[1] > self.input_size:
+            return (0, 0)
+        else:
+            return keypoint
 
-        keypoints=[(coords[key][0],coords[key][1]) for key in coords.keys()]
+    def __getitem__(self, idx):
+        image,img_name = self.GetImage(idx)
+        keypoints = self.GetKeypoints(idx)
         if self.transforms:
-            transformed=train_transform(image,keypoints,self.size,self.size)
-            image_trans=transformed['image']
-            coords_trans=transformed['keypoints']
-            new_points=[]
-            for coords in coords_trans:
-                new_points.append((coords[0]/4,coords[1]/4))
-            for i,coord in enumerate (new_points):
-                out[i]=generate_gaussian(torch.zeros([64,64]),coord[0],coord[1])
-        return {'images':image_trans,
-                'keypoints':torch.tensor(coords_trans),
-                'targets':out}
+            image, keypoints = self.transforms(image, keypoints, self.input_size, self.input_size)
+
+            keypoints = list(map(self.remove_invisible, keypoints))
+        targets = np.zeros((self.nJoints, self.output_size, self.output_size))
+        k = self.output_size / self.input_size
+        for i in range(self.nJoints):
+            targets[i] = CenterGaussianHeatMap(self.output_size, self.output_size, keypoints[i][0] * k,
+                                               keypoints[i][1] * k)
+
+        meta={'imgname':img_name}
+        return image, targets,meta
+
     def __len__(self):
-        return len(self.keypoints)
+        return len(self.f['imgname'])

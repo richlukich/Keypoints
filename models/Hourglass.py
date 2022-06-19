@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from Keypoints.models.PRM import PRM
+from models.PRM import PRM
 
 class DownSampling(nn.Module):
     def __init__(self):

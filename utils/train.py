@@ -1,24 +1,42 @@
-from utils.utils import AverageMeter
-import torch
-def step(model,epoch, dataloader , criterion,optimizer):
+from utils.evualate import AverageMeter
+import time
+from utils.evualate import Accuracy
+def train(train_loader,model,criterion,optimizer,epoch):
+
     Loss=AverageMeter()
-    preds=[]
+    Acc=AverageMeter()
+    data_time=AverageMeter()
+    batch_time=AverageMeter()
+    model.train()
+    end=time.time()
 
-    nIters=len(dataloader)
+    for i,(input,targets,meta) in train_loader:
+        data_time.update(time.time() - end)
+        outputs=model(input.cuda())
 
-    for images,keypoints,targets in dataloader:
-        input_var = torch.autograd.Variable(images).float().cuda()
-        targets_var=torch.autograd.Variable(targets).float().cuda()
+        loss=criterion(outputs,targets.cuda())
 
-        output=model(input_var)
-        loss=criterion(output[0],targets_var)
-        Loss.update(loss.item(), input_var.shape[0])
-
-        optimizer.zero_grad()
+        optimizer.zero_backward()
         loss.backward()
         optimizer.step()
 
-    print ('Epoch=',epoch,'Loss=',Loss.avg)
+        Loss.update(loss.item(), input.shape[0])
 
-def train(model,epoch, dataloader , criterion,optimizer):
-    return step(model,epoch, dataloader , criterion,optimizer)
+        accuracy=Accuracy(outputs.detach().cpu().numpy(),
+                     targets.detach().cpu().numpy())
+
+        Acc.update(accuracy)
+
+        batch_time.update(time.time() - end)
+        end = time.time()
+
+        if i % 300 == 0:
+            msg = 'Epoch: [{0}][{1}/{2}]\t' \
+                  'Time {batch_time.val:.3f}s ({batch_time.avg:.3f}s)\t' \
+                  'Speed {speed:.1f} samples/s\t' \
+                  'Data {data_time.val:.3f}s ({data_time.avg:.3f}s)\t' \
+                  'Loss {loss.val:.5f} ({loss.avg:.5f})\t' \
+                  'Accuracy {acc.val:.3f} ({acc.avg:.3f})'.format(
+                epoch, i, len(train_loader), batch_time=batch_time,
+                speed=input.shape[0] / batch_time.val,
+                data_time=data_time, loss=Loss, acc=Acc)
