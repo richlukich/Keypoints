@@ -1,6 +1,7 @@
 from utils.evualate import AverageMeter
 import time
 from utils.evualate import Accuracy
+import torch
 def train(train_loader,model,criterion,optimizer,epoch):
 
     Loss=AverageMeter()
@@ -12,18 +13,22 @@ def train(train_loader,model,criterion,optimizer,epoch):
 
     for i,(input,targets,meta) in train_loader:
         data_time.update(time.time() - end)
-        outputs=model(input.cuda())
 
-        loss=criterion(outputs,targets.cuda())
+        input_var = torch.autograd.Variable(input).float().cuda()
+        target_var = torch.autograd.Variable(targets).float().cuda()
 
-        optimizer.zero_backward()
+        outputs=model(input_var)
+
+        loss=criterion(outputs,target_var)
+
+        optimizer.zero_grad
         loss.backward()
         optimizer.step()
 
         Loss.update(loss.item(), input.shape[0])
 
         accuracy=Accuracy(outputs.detach().cpu().numpy(),
-                     targets.detach().cpu().numpy())
+                     target_var.detach().cpu().numpy())
 
         Acc.update(accuracy)
 
