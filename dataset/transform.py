@@ -10,7 +10,7 @@ def train_transform(image,keypoints,height,width):
         albumentations.pytorch.transforms.ToTensorV2()
     ], keypoint_params=A.KeypointParams(format='xy', remove_invisible=False, angle_in_degrees=True))
     transformed=transform(image=image,keypoints=keypoints)
-    return transformed
+    return transformed['image'], transformed['keypoints']
 
 def val_transform(image,keypoints,height,width):
     transform = A.Compose([

@@ -3,7 +3,7 @@ import torch
 import pandas as pd
 from torch.utils.data import Dataset
 import cv2
-from utils.gaussian import CenterGaussianHeatMap
+from utils.gaussian import generate_gaussian
 import matplotlib.pyplot as plt
 from dataset.transform import train_transform
 from h5py import File
@@ -43,7 +43,7 @@ class MPIIDataset(Dataset):
         targets = np.zeros((self.nJoints, self.output_size, self.output_size))
         k = self.output_size / self.input_size
         for i in range(self.nJoints):
-            targets[i] = CenterGaussianHeatMap(self.output_size, self.output_size, keypoints[i][0] * k,
+            targets[i] = generate_gaussian(targets, keypoints[i][0] * k,
                                                keypoints[i][1] * k)
 
         meta={'imgname':img_name}

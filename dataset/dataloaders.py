@@ -3,7 +3,7 @@ import torch
 from torch.utils.data import DataLoader
 from dataset.transform import train_transform,val_transform
 import pandas as pd
-batch_size=4
+batch_size=8
 path_images='/content/images/'
 mpii_dataset_train=MPIIDataset('train',
                          train_transform)
@@ -13,5 +13,5 @@ mpii_dataset_val=MPIIDataset('val',
 train_dataloader=DataLoader(mpii_dataset_train,
                             batch_size=batch_size)
 
-val_dataloder=DataLoader(mpii_dataset_val,
+val_dataloader=DataLoader(mpii_dataset_val,
                          batch_size=1)

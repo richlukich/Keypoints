@@ -13,6 +13,9 @@ def getPreds(heatmaps):
     maxidx=np.argmax(heatmaps_vectors,axis=2)
     maxvalue=np.amax(heatmaps_vectors,axis=2)
 
+    maxvalue = maxvalue.reshape((batch_size, nJoints, 1))
+    maxidx = maxidx.reshape((batch_size, nJoints, 1))
+
     preds=np.tile(maxidx, (1, 1, 2)).astype(np.float32)
 
     preds[:,:,0]=preds[:,:,0] % width
@@ -28,8 +31,8 @@ def CalcDist(output,target,normalize=64/10):
 
     dists=np.zeros((output.shape[0],output.shape[1]))
 
-    for i in range (dists.shape[0]):
-        for j in range (dists.shape[1]):
+    for i in range (output.shape[0]):
+        for j in range (output.shape[1]):
 
             if target[i,j,0]>0 and target[i,j,1]>0:
                 dists[j][i]=( ((output[i,j,0]-target[i,j,0])**2 +  (output[i,j,1]-target[i,j,1])**2)**0.5 ) /normalize
