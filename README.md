@@ -113,6 +113,8 @@ $$ f'(x)= \frac{f(x+h)-f(x-h)}{2h} $$
 
 $$ \frac {\partial^2 f}{\partial x^2} = \frac{f(x-2h,y)-2f(x,y)+f(x+2h,y)}{(2h)^2} $$
 
+$$ \frac {\partial^2 f}{\partial x \partial y}= \frac{f(x+h,y+h)-f(x+h,y-h)-f(x-h,y+h)+f(x-h,y-h)}{(2h)^2)}
+
 Также для сглаживания тепловой карты можно применить Гауссовское ядро 
 $$ h'=K \odot h $$
 
