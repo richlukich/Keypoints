@@ -84,6 +84,7 @@ $$ (x_c,y_c)= ( \frac{\sum_i x_i \cdot p_i}{\sum_i p_i},\frac{\sum_i y_i \cdot p
 $$ p=m+ 0.25 \cdot \frac{s-m}{||s-m||_2} $$
 
 **4. Оценка $\mu$ c помощью функции максимального правдоподобия**
+
 Данный метод рассматривался в этой статье: https://arxiv.org/pdf/1910.06278.pdf
 
 ![github](https://github.com/richlukich/Keypoints/blob/main/images/3.png)
