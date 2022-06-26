@@ -10,7 +10,7 @@
 <p>Как видно нейросеть основана на PRM блоках. Они бывают различных видов PRM-A,PRM-B,PRM-C,PRM-D. В данном репозитории использовался PRM-A.
 <p>--Тут должно быть фото PRM--
 <p>  То есть пусть у нас входные данные имеют вид 
-! [rumus pertama](http://latex.codecogs.com/gif.latex?%5Cmu)
+![rumus pertama](http://latex.codecogs.com/gif.latex?%5Cmu)
 ![rumus kedua](http://latex.codecogs.com/gif.latex?%5Cfrac%7Ba_2%7D%7Bb%5E2%7D)
 
 ![first equation](http://latex.codecogs.com/gif.latex?%5Cfrac%7Ba%7D%7Bb%7D)
