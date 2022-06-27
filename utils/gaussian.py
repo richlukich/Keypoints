@@ -1,49 +1,32 @@
-_gaussians = {}
-import torch
 import numpy as np
-def generate_gaussian(t, x, y, sigma=10):
-    """
-    Generates a 2D Gaussian point at location x,y in tensor t.
 
-    x should be in range (-1, 1) to match the output of fastai's PointScaler.
+class generateGaussian():
+    def __init__(self, output_res, num_parts,sigma=1.5):
+        self.output_res = output_res
+        self.num_parts = num_parts
+        sigma = self.output_res/64 * sigma
+        self.sigma = sigma
+        size = 6*sigma + 3
+        x = np.arange(0, size, 1, float)
+        y = x[:, np.newaxis]
+        x0, y0 = 3*sigma + 1, 3*sigma + 1
+        self.g = np.exp(- ((x - x0) ** 2 + (y - y0) ** 2) / (2 * sigma ** 2))
 
-    sigma is the standard deviation of the generated 2D Gaussian.
-    """
-    h,w = t.shape[0],t.shape[1]
+    def __call__(self, keypoints):
+        hms = np.zeros(shape = (self.num_parts, self.output_res, self.output_res), dtype = np.float32)
+        sigma = self.sigma
+        for idx,p in enumerate(keypoints):
+                if np.sum(p) > 0:
+                    x, y = int(p[0]), int(p[1])
+                    if x<0 or y<0 or x>=self.output_res or y>=self.output_res:
+                        continue
+                    ul = int(x - 3*sigma - 1), int(y - 3*sigma - 1)
+                    br = int(x + 3*sigma + 2), int(y + 3*sigma + 2)
 
-    # Heatmap pixel per output pixel
-    mu_x = int(0.5 * (x + 1.) * w)
-    mu_y = int(0.5 * (y + 1.) * h)
+                    c,d = max(0, -ul[0]), min(br[0], self.output_res) - ul[0]
+                    a,b = max(0, -ul[1]), min(br[1], self.output_res) - ul[1]
 
-    tmp_size = sigma * 3
-
-    # Top-left
-    x1,y1 = int(mu_x - tmp_size), int(mu_y - tmp_size)
-
-    # Bottom right
-    x2, y2 = int(mu_x + tmp_size + 1), int(mu_y + tmp_size + 1)
-    if x1 >= w or y1 >= h or x2 < 0 or y2 < 0:
-        return t
-
-    size = 2 * tmp_size + 1
-    tx = np.arange(0, size, 1, np.float32)
-    ty = tx[:, np.newaxis]
-    x0 = y0 = size // 2
-
-    # The gaussian is not normalized, we want the center value to equal 1
-    g = _gaussians[sigma] if sigma in _gaussians \
-                else torch.tensor(np.exp(- ((tx - x0) ** 2 + (ty - y0) ** 2) / (2 * sigma ** 2)))
-    _gaussians[sigma] = g
-
-    # Determine the bounds of the source gaussian
-    g_x_min, g_x_max = max(0, -x1), min(x2, w) - x1
-    g_y_min, g_y_max = max(0, -y1), min(y2, h) - y1
-
-    # Image range
-    img_x_min, img_x_max = max(0, x1), min(x2, w)
-    img_y_min, img_y_max = max(0, y1), min(y2, h)
-
-    t[img_y_min:img_y_max, img_x_min:img_x_max] = \
-      g[g_y_min:g_y_max, g_x_min:g_x_max]
-
-    return t
+                    cc,dd = max(0, ul[0]), min(br[0], self.output_res)
+                    aa,bb = max(0, ul[1]), min(br[1], self.output_res)
+                    hms[idx, aa:bb,cc:dd] = np.maximum(hms[idx, aa:bb,cc:dd], self.g[a:b,c:d])
+        return hms
