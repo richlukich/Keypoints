@@ -22,10 +22,10 @@ def getPreds(heatmap):
     assert len(heatmap.shape) == 4, 'Input must be a 4-D tensor'
     N=heatmap.shape[0]
     C=heatmap.shape[1]
-    H,W=heatmap.shape[2]
+    H=W=heatmap.shape[2]
     hm = heatmap.reshape(N, C, W * H)
-    idx = np.argmax(heatmap, axis=2)
-    preds = np.zeros((heatmap.shape[0], heatmap.shape[1], 2))
+    idx = np.argmax(hm, axis=2)
+    preds = np.zeros((N, C, 2))
     for i in range(hm.shape[0]):
         for j in range(hm.shape[1]):
             preds[i, j, 0], preds[i, j, 1] = idx[i, j] % W, idx[i, j] / H

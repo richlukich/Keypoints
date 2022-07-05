@@ -6,14 +6,13 @@ import cv2
 import matplotlib.pyplot as plt
 from utils import utils
 from utils.gaussian import generateGaussian
-from dataset import transform
-from dataset.transform import crop,kpt_affine
+from dataset.transform import crop,kpt_affine,transform,get_transform
 class MPIIDataset(Dataset):
     def __init__(self, split, generateGaussian, input_size=utils.input_size, output_size=utils.output_size):
         print('==> initializing 2D {} data.'.format(split))
         annot = {}
         tags = ['imgname', 'part', 'center', 'scale']
-        f = File('{}/mpii/annot/{}.h5'.format(utils.annotDir, split), 'r')
+        f = File('{}/{}.h5'.format(utils.annotDir, split), 'r')
         for tag in tags:
             annot[tag] = np.asarray(f[tag]).copy()
         f.close()
