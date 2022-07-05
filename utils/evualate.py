@@ -108,7 +108,7 @@ def getPreds_dark(target):
 def Accuracy_dark(output, target):
     preds = getPreds_dark(output)
     gt = getPreds_dark(target)
-    dists = calcDists(preds, gt, np.ones(preds.shape[0]) * utils.outputRes / 10)
+    dists = calcDists(preds, gt, np.ones(preds.shape[0]) * utils.output_size / 10)
     acc = np.zeros(len(utils.accIdxs))
     avgAcc = 0
     badIdxCount = 0
@@ -153,7 +153,7 @@ def getPreds_centroid(target):
 def Accuracy_centroid(output, target):
     preds = getPreds_centroid(output)
     gt = getPreds_centroid(target)
-    dists = calcDists(preds, gt, np.ones(preds.shape[0]) * utils.outputRes / 10)
+    dists = calcDists(preds, gt, np.ones(preds.shape[0]) * utils.output_size / 10)
     acc = np.zeros(len(utils.accIdxs))
     avgAcc = 0
     badIdxCount = 0
@@ -196,7 +196,7 @@ def getPreds_merge(target):
 def Accuracy_merge(output, target):
     preds = getPreds_merge(output)
     gt = getPreds_merge(target)
-    dists = calcDists(preds, gt, np.ones(preds.shape[0]) * utils.outputRes / 10)
+    dists = calcDists(preds, gt, np.ones(preds.shape[0]) * utils.output_size / 10)
     acc = np.zeros(len(utils.accIdxs))
     avgAcc = 0
     badIdxCount = 0
