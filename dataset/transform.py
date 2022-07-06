@@ -9,19 +9,18 @@ def get_transform(center, scale, res, rot=0):
     t[1, 2] = res[0] * (-float(center[1]) / h + .5)
     t[2, 2] = 1
     if not rot == 0:
-        rot = -rot
-        rot_mat = np.zeros((3,3))
+        a = float(res[1]) / h
+        b = float(res[0]) / h
         rot_rad = rot * np.pi / 180
-        sn,cs = np.sin(rot_rad), np.cos(rot_rad)
-        rot_mat[0,:2] = [cs, -sn]
-        rot_mat[1,:2] = [sn, cs]
-        rot_mat[2,2] = 1
-        t_mat = np.eye(3)
-        t_mat[0,2] = -res[1]/2
-        t_mat[1,2] = -res[0]/2
-        t_inv = t_mat.copy()
-        t_inv[:2,2] *= -1
-        t = np.dot(t_inv,np.dot(rot_mat,np.dot(t_mat,t)))
+        rot_matrix = np.zeros((3, 3))
+        rot_matrix[0, 0] = a * np.cos(rot_rad)
+        rot_matrix[0, 1] = b * np.sin(rot_rad)
+        rot_matrix[0, 2] = -a * np.cos(rot_rad) * float(center[0]) - b * np.sin(rot_rad) * float(center[1]) + res[0] / 2
+        rot_matrix[1, 0] = -b * np.sin(rot_rad)
+        rot_matrix[1, 1] = a * np.cos(rot_rad)
+        rot_matrix[1, 2] = b * np.sin(rot_rad) * float(center[0]) - a * np.cos(rot_rad) * float(center[1]) + res[1] / 2
+        rot_matrix[2, 2] = 1
+        t=rot_matrix
     return t
 
 def transform(pt, center, scale, res, invert=0, rot=0):
